@@ -2,7 +2,6 @@ package com.mininglamp.psbc;
 
 import org.apache.hadoop.hive.ql.parse.*;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -305,8 +304,7 @@ public class HiveParse {
         output(alias);
     }
 
-    public static void main(String[] args) throws IOException, ParseException, SemanticException {
-        ParseDriver pd = new ParseDriver();
+    public static void main(String[] args) {
 //        HiveConf conf = new HiveConf();
         String sql1 = "Select * from zpc1";
         String sql2 = "Select name,ip from zpc2 bieming where age > 10 and area in (select area from city)";
@@ -333,11 +331,21 @@ public class HiveParse {
         String sql21 = "alter table mp add partition (b='1', c='1')";
         String sql22 = "select login.uid from login day_login left outer join (select uid from regusers where dt='20130101') day_regusers on day_login.uid=day_regusers.uid where day_login.dt='20130101' and day_regusers.uid is null";
         String sql23 = "select name from (select * from zpc left outer join def) d";
-        String parsesql = sql1;
-        HiveParse hp = new HiveParse();
+        String sql24 = "create table staff.tb_ml_1 as select a.col1,a.col2 from staff.tb_ml_2 a join " +
+                "(select col3 from staff.tb_ml_3) c on a.col1 = c.col3";
+
+        String parsesql = sql24;
         System.out.println(parsesql);
-        ASTNode ast = pd.parse(parsesql);
+
+        ParseDriver pd = new ParseDriver();
+        ASTNode ast = null;
+        try {
+            ast = pd.parse(parsesql);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         System.out.println(ast.toStringTree());
+        HiveParse hp = new HiveParse();
         hp.parse(ast);
     }
 }
